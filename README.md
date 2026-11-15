@@ -23,3 +23,6 @@ Rather than relying purely on theoretical concepts, this repository documents pr
 
 5. **[005 - Prometheus & Grafana](./005-prometheus-grafana/)**  
    Cloud-native observability stack (`kube-prometheus-stack`): Operator-driven Prometheus metrics scraping, PromQL queries, pre-built Grafana Kubernetes dashboards, `kube-state-metrics`, and Alertmanager alert threshold testing.
+
+6. **[006 - Jenkins CI: Enterprise Pipeline Engineering](./006-jenkins-ci/)**  
+   Self-hosted automation server and distributed CI architecture: Deploying a lightweight Jenkins Controller and containerized Agent, authoring production-grade Declarative Jenkinsfiles (Groovy syntax), stage view visualization, post-actions, and Jenkins-to-GitHub Actions translation.
