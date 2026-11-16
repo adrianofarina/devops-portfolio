@@ -28,7 +28,7 @@ pipeline {
                 // Simulated lint step
                 sh '''
                     echo "Checking manifest formatting and syntax..."
-                    test -f Jenkinsfile && echo "Jenkinsfile syntax validated."
+                    (test -f 006-jenkins-ci/Jenkinsfile || test -f Jenkinsfile) && echo "Jenkinsfile syntax validated."
                 '''
             }
         }
