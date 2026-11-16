@@ -26,3 +26,6 @@ Rather than relying purely on theoretical concepts, this repository documents pr
 
 6. **[006 - Jenkins CI: Enterprise Pipeline Engineering](./006-jenkins-ci/)**  
    Self-hosted automation server and distributed CI architecture: Deploying a lightweight Jenkins Controller and containerized Agent, authoring production-grade Declarative Jenkinsfiles (Groovy syntax), stage view visualization, post-actions, and Jenkins-to-GitHub Actions translation.
+
+7. **[007 - AWS Cloud Infrastructure as Code with Terraform](./007-aws-terraform/)**  
+   Production-grade Infrastructure as Code (IaC) featuring reusable Terraform modules: Provisioning an AWS VPC (10.0.0.0/16), 3-tier subnets (Public, Private App, Secure Database), NAT Gateway, Security Groups, Bastion and private EC2 instances, state inspection, and zero-cost automated lifecycle management via 'terraform destroy'.
