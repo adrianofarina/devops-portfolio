@@ -1,0 +1,84 @@
+// Declarative Jenkinsfile
+// Module 006 - Enterprise Jenkins Pipeline Engineering
+
+pipeline {
+    agent {
+        label 'docker-agent'
+    }
+
+    environment {
+        APP_NAME    = 'devops-demo-app'
+        APP_VERSION = '1.0.0'
+        ENVIRONMENT = 'staging'
+    }
+
+    stages {
+        stage('Initialize & Environment Audit') {
+            steps {
+                echo "Running pipeline for ${env.APP_NAME} version ${env.APP_VERSION}"
+                echo "Build Number: ${env.BUILD_NUMBER}"
+                echo "Workspace directory: ${env.WORKSPACE}"
+                sh 'uname -a'
+            }
+        }
+
+        stage('Code Quality & Linting') {
+            steps {
+                echo 'Executing static code analysis and linting checks...'
+                // Simulated lint step
+                sh '''
+                    echo "Checking manifest formatting and syntax..."
+                    (test -f 006-jenkins-ci/Jenkinsfile || test -f Jenkinsfile) && echo "Jenkinsfile syntax validated."
+                '''
+            }
+        }
+
+        stage('Build & Package') {
+            steps {
+                echo "Packaging ${env.APP_NAME} for deployment..."
+                sh '''
+                    mkdir -p build/output
+                    echo "Release artifact: ${APP_NAME}-${APP_VERSION}-build-${BUILD_NUMBER}" > build/output/artifact.txt
+                    cat build/output/artifact.txt
+                '''
+            }
+        }
+
+        stage('Automated Test Suite') {
+            steps {
+                echo 'Running unit test suite and smoke checks...'
+                sh '''
+                    echo "Executing smoke tests against built artifact..."
+                    grep -q "${APP_NAME}" build/output/artifact.txt
+                    echo "All smoke tests PASSED."
+                '''
+            }
+        }
+
+        stage('Deploy to Target Environment') {
+            when {
+                expression { return env.ENVIRONMENT == 'staging' }
+            }
+            steps {
+                echo "Deploying ${env.APP_NAME} build #${env.BUILD_NUMBER} to ${env.ENVIRONMENT}..."
+                sh '''
+                    echo "Deployment simulation: shipping artifact to target runtime..."
+                    echo "Successfully deployed build #${BUILD_NUMBER} to ${ENVIRONMENT}."
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline run completed for build #${env.BUILD_NUMBER}."
+            cleanWs deleteDirs: true, notFailBuild: true
+        }
+        success {
+            echo "BUILD SUCCESS: Pipeline passed all stages successfully."
+        }
+        failure {
+            echo "BUILD FAILURE: Pipeline encountered an error during execution."
+        }
+    }
+}
