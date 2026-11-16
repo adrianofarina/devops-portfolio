@@ -244,7 +244,7 @@ docker ps
 
 DevOps engineers frequently lead migrations from legacy Jenkins servers to GitHub Actions to eliminate infrastructure overhead. When migrating enterprise pipelines:
 
-1. **Deconstruct Global Plugins into Native Actions:** Legacy Jenkins pipelines rely heavily on plugins (NodeJS Plugin, Docker Pipeline Plugin, SonarQube Scanner). In GitHub Actions, these map directly to official marketplace actions (`actions/setup-node@v4`, `docker/build-push-action@v5`).
+1. **Deconstruct Global Plugins into Native Actions:** Legacy Jenkins pipelines rely heavily on plugins (NodeJS Plugin, Docker Pipeline Plugin, SonarQube Scanner). In GitHub Actions, these map directly to official actions (such as `actions/setup-node@v4` or `docker/build-push-action@v5`). I can discover verified actions on the [GitHub Marketplace](https://github.com/marketplace?type=actions), or browse them in real time via the built-in Marketplace sidebar inside GitHub's web workflow editor, which provides searchable snippets directly while typing.
 2. **Transition Static Workspaces to Ephemeral Runners:** In static Jenkins agents, previous builds can leave dirty disk state (`node_modules`, cached binaries). GitHub Actions runners provide guaranteed clean environments out of the box.
 3. **Map Secret Bindings:** Replace `withCredentials` Groovy blocks with GitHub Actions `${{ secrets.* }}` or OpenID Connect (OIDC) cloud federation to eliminate long-lived cloud credentials altogether.
 4. **Shift from Sequential Stages to Parallel DAGs:** Legacy Jenkins jobs often run tests sequentially. Rewriting these stages as independent GitHub Actions jobs linked via `needs:` significantly cuts total delivery wall-clock time.
