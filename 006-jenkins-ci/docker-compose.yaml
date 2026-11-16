@@ -1,0 +1,21 @@
+services:
+  jenkins-controller:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: jenkins-controller
+    restart: unless-stopped
+    ports:
+      - "8080:8080"    # Jenkins Web UI
+      - "50000:50000"  # JNLP Agent connection port
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m -Duser.language=en -Duser.country=US
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins-net
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins-net:
+    driver: bridge
