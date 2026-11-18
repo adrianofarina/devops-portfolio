@@ -1,0 +1,39 @@
+output "vpc_id" {
+  description = "ID of the VPC"
+  value       = aws_vpc.main.id
+}
+
+output "vpc_cidr" {
+  description = "CIDR block of the VPC"
+  value       = aws_vpc.main.cidr_block
+}
+
+output "public_subnet_id" {
+  description = "ID of the public subnet"
+  value       = aws_subnet.public.id
+}
+
+output "private_subnet_id" {
+  description = "ID of the private application subnet"
+  value       = aws_subnet.private.id
+}
+
+output "secure_subnet_id" {
+  description = "ID of the secure database subnet"
+  value       = aws_subnet.secure.id
+}
+
+output "nat_gateway_public_ip" {
+  description = "Elastic IP address attached to the NAT Gateway"
+  value       = aws_eip.nat.public_ip
+}
+
+output "nat_gateway_id" {
+  description = "ID of the NAT Gateway"
+  value       = aws_nat_gateway.nat.id
+}
+
+output "internet_gateway_id" {
+  description = "ID of the Internet Gateway"
+  value       = aws_internet_gateway.igw.id
+}
