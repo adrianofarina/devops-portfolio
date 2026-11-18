@@ -1,10 +1,10 @@
 # VPC Module - Core Network
 
 # 1. VPC
-resource "aws_vpc" "main" {
+resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
-  enable_dns_support   = true #Activates the built-in AWS DNS resolver
-  enable_dns_hostnames = true #Determines whether EC2 instances launched in this VPC automatically receive human-readable DNS hostnames
+  enable_dns_support   = true # Activates the built-in AWS DNS resolver
+  enable_dns_hostnames = true # Determines whether EC2 instances launched in this VPC automatically receive human-readable DNS hostnames
 
   tags = {
     Name = "${var.environment}-vpc"
@@ -12,8 +12,8 @@ resource "aws_vpc" "main" {
 }
 
 # 2. Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
+resource "aws_internet_gateway" "this" {
+  vpc_id = aws_vpc.this.id
 
   tags = {
     Name = "${var.environment}-igw"
@@ -22,7 +22,7 @@ resource "aws_internet_gateway" "igw" {
 
 # 3. Subnets across 3 Functional Tiers
 resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = aws_vpc.this.id
   cidr_block              = var.public_subnet_cidr
   availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
@@ -33,8 +33,21 @@ resource "aws_subnet" "public" {
   }
 }
 
+resource "aws_subnet" "public_2" {
+  count                   = var.availability_zone_2 != null ? 1 : 0
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = var.public_subnet_2_cidr
+  availability_zone       = var.availability_zone_2
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.environment}-public-subnet-2"
+    Tier = "public"
+  }
+}
+
 resource "aws_subnet" "private" {
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = aws_vpc.this.id
   cidr_block              = var.private_subnet_cidr
   availability_zone       = var.availability_zone
   map_public_ip_on_launch = false
@@ -46,7 +59,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "secure" {
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = aws_vpc.this.id
   cidr_block              = var.secure_subnet_cidr
   availability_zone       = var.availability_zone
   map_public_ip_on_launch = false
@@ -58,7 +71,7 @@ resource "aws_subnet" "secure" {
 }
 
 # 4. Elastic IP & NAT Gateway (for Private Subnet Egress)
-resource "aws_eip" "nat" {
+resource "aws_eip" "this" {
   domain = "vpc"
 
   tags = {
@@ -66,25 +79,25 @@ resource "aws_eip" "nat" {
   }
 }
 
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.this.id
   subnet_id     = aws_subnet.public.id
 
   tags = {
     Name = "${var.environment}-nat-gw"
   }
 
-  depends_on = [aws_internet_gateway.igw]
+  depends_on = [aws_internet_gateway.this]
 }
 
 # 5. Route Tables
 # Public Route Table: Routes 0.0.0.0/0 to the Internet Gateway
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.this.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+    gateway_id = aws_internet_gateway.this.id
   }
 
   tags = {
@@ -94,11 +107,11 @@ resource "aws_route_table" "public" {
 
 # Private Route Table: Routes 0.0.0.0/0 to the NAT Gateway
 resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.this.id
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat.id
+    nat_gateway_id = aws_nat_gateway.this.id
   }
 
   tags = {
@@ -108,7 +121,7 @@ resource "aws_route_table" "private" {
 
 # Secure Route Table: Local VPC routing only (No internet route)
 resource "aws_route_table" "secure" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.this.id
 
   tags = {
     Name = "${var.environment}-secure-rt"
@@ -118,6 +131,12 @@ resource "aws_route_table" "secure" {
 # 6. Route Table Associations
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_2" {
+  count          = var.availability_zone_2 != null ? 1 : 0
+  subnet_id      = aws_subnet.public_2[0].id
   route_table_id = aws_route_table.public.id
 }
 
@@ -135,8 +154,8 @@ resource "aws_route_table_association" "secure" {
 
 # Public Subnet NACL
 resource "aws_network_acl" "public" {
-  vpc_id     = aws_vpc.main.id
-  subnet_ids = [aws_subnet.public.id]
+  vpc_id     = aws_vpc.this.id
+  subnet_ids = concat([aws_subnet.public.id], var.availability_zone_2 != null ? [aws_subnet.public_2[0].id] : [])
 
   # Inbound Rules: HTTP, HTTPS, and Ephemeral return ports for public endpoints (e.g. ALB)
   ingress {
@@ -183,7 +202,7 @@ resource "aws_network_acl" "public" {
 
 # Private App Subnet NACL
 resource "aws_network_acl" "private" {
-  vpc_id     = aws_vpc.main.id
+  vpc_id     = aws_vpc.this.id
   subnet_ids = [aws_subnet.private.id]
 
   # Inbound Rules: HTTP, HTTPS, and app ports from public subnet (ALB traffic)
@@ -241,7 +260,7 @@ resource "aws_network_acl" "private" {
 
 # Secure Database Subnet NACL (Zero internet routing)
 resource "aws_network_acl" "secure" {
-  vpc_id     = aws_vpc.main.id
+  vpc_id     = aws_vpc.this.id
   subnet_ids = [aws_subnet.secure.id]
 
   # Inbound Rules: Strictly database ports from Private App Subnet only

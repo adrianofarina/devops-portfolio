@@ -5,9 +5,15 @@ variable "vpc_cidr" {
 }
 
 variable "public_subnet_cidr" {
-  description = "CIDR block for the public subnet"
+  description = "CIDR block for the primary public subnet"
   type        = string
   default     = "172.16.1.0/24"
+}
+
+variable "public_subnet_2_cidr" {
+  description = "CIDR block for the secondary public subnet (for Multi-AZ ALB)"
+  type        = string
+  default     = "172.16.10.0/24"
 }
 
 variable "private_subnet_cidr" {
@@ -23,8 +29,14 @@ variable "secure_subnet_cidr" {
 }
 
 variable "availability_zone" {
-  description = "AWS Availability Zone for subnets"
+  description = "Primary AWS Availability Zone for subnets"
   type        = string
+}
+
+variable "availability_zone_2" {
+  description = "Secondary AWS Availability Zone for Multi-AZ public subnets"
+  type        = string
+  default     = null
 }
 
 variable "environment" {
