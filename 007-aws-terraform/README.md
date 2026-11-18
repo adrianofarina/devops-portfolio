@@ -16,26 +16,27 @@ The infrastructure implements a classic enterprise 3-tier network topology insid
 
 ```text
 +-----------------------------------------------------------------------------------------+
-|                                    AWS Cloud (Region: eu-central-1)                     |
-|  VPC: 10.0.0.0/16                                                                       |
+|                                    AWS Cloud (Region: us-east-1)                        |
+|  VPC: 172.16.0.0/16                                                                     |
 |                                                                                         |
 |  +-----------------------------------------------------------------------------------+  |
-|  | Public Subnet (10.0.1.0/24)                                                        |  |
+|  | Public Subnet (172.16.1.0/24)                                                     |  |
 |  |  - Internet Gateway (IGW)                                                         |  |
 |  |  - NAT Gateway (Elastic IP)                                                       |  |
-|  |  - Bastion Host (Public IP / SSH port 22 restricted)                              |  |
+|  |  - Application Load Balancer (ALB / HTTP 80 & HTTPS 443)                          |  |
 |  +-----------------------------------------+-----------------------------------------+  |
-|                                            | Outbound Internet (via NAT Gateway)        |
+|                                            | Forward Ingress / NAT Egress               |
 |                                            v                                            |
 |  +-----------------------------------------------------------------------------------+  |
-|  | Private App Subnet (10.0.2.0/24)                                                  |  |
-|  |  - Backend Application VM (Private IP only)                                       |  |
-|  |  - Ingress: SSH port 22 allowed strictly from Bastion Security Group              |  |
+|  | Private App Subnet (172.16.2.0/24)                                                |  |
+|  |  - Backend Application Workloads (Private IP only)                                |  |
+|  |  - Ingress: HTTP/8080 allowed strictly from ALB Security Group                    |  |
+|  |  - Zero-Port Administration: Managed via AWS Systems Manager (SSM) Session Manager |  |
 |  |  - Egress: Outbound traffic routed through NAT Gateway in Public Subnet           |  |
 |  +-----------------------------------------------------------------------------------+  |
 |                                                                                         |
 |  +-----------------------------------------------------------------------------------+  |
-|  | Secure Database Subnet (10.0.3.0/24)                                               |  |
+|  | Secure Database Subnet (172.16.3.0/24)                                            |  |
 |  |  - Isolated data tier (No direct route to Internet Gateway or NAT Gateway)         |  |
 |  |  - Ingress: Database ports allowed strictly from App Tier Security Group          |  |
 |  +-----------------------------------------------------------------------------------+  |
@@ -45,7 +46,7 @@ The infrastructure implements a classic enterprise 3-tier network topology insid
 ### Architectural Highlights
 - **VPC & 3-Tier Subnets**: High isolation boundary preventing public internet access to application runtimes and databases.
 - **NAT Gateway Egress**: Backend workloads in the private subnet can securely initiate outbound requests (e.g., pulling OS updates or container images) without exposing incoming open ports to the internet.
-- **Bastion Jump Host**: Administrative SSH access to internal workloads requires jumping through a hardened Bastion host in the public subnet, enforcing strict origin IP filtering.
+- **Zero-Port Administration (AWS SSM)**: Eliminates jump hosts and open SSH ports entirely. Administrative access is performed securely via AWS Systems Manager (SSM) Session Manager authenticated through IAM roles.
 
 ---
 
@@ -110,15 +111,19 @@ For this portfolio project, I intentionally maintain the state locally:
 ```text
 007-aws-terraform/
 ├── README.md               # Architecture documentation and lab walkthrough
-├── main.tf                 # Root module: provider definition and module instantiation
-├── variables.tf            # Root input variable definitions with placeholders
-├── terraform.tfvars.example# Example input variables for environment customization
+├── variables.tf            # Shared input variable declarations
+├── network/                # Root 1: Network Foundation Layer
+│   ├── providers.tf        # AWS provider configuration for network
+│   ├── variables.tf        # Network-specific input variables
+│   ├── main.tf             # Calls module "vpc" (../modules/vpc)
+│   └── outputs.tf          # Exports VPC, subnet IDs, and NAT gateway IP
+├── servers/                # Root 2: Compute & Workload Layer
+│   ├── providers.tf        # AWS provider configuration for compute
+│   ├── variables.tf        # Compute-specific input variables
+│   ├── main.tf             # Reads network state (terraform_remote_state)
+│   └── outputs.tf          # Exports compute endpoints (ALB DNS, ASG name)
 └── modules/
-    ├── network/            # Reusable VPC, 3-tier subnets, IGW, NAT Gateway, Route Tables
-    │   ├── main.tf
-    │   ├── variables.tf
-    │   └── outputs.tf
-    └── compute/            # Reusable Security Groups, EC2 instances, key pairs
+    └── vpc/                # Reusable VPC module (3-tier subnets, IGW, NAT, NACLs)
         ├── main.tf
         ├── variables.tf
         └── outputs.tf
@@ -129,8 +134,8 @@ For this portfolio project, I intentionally maintain the state locally:
 ## 5. Implementation Roadmap
 
 1. **Root Scaffolding**: Configure the `hashicorp/aws` provider, default resource tags, and region placeholders.
-2. **Network Module (`modules/network`)**: Provision the VPC (`10.0.0.0/16`), public, private, and database subnets, Internet Gateway, and NAT Gateway.
-3. **Compute Module (`modules/compute`)**: Provision Security Groups, SSH key pairs, the public Bastion host, and the private backend application VM.
+2. **Network Layer (`network/`)**: Provision the VPC (`172.16.0.0/16`), 3-tier subnets (public, private app, secure database), Internet Gateway, NAT Gateway, and stateless NACLs via `modules/vpc`.
+3. **Compute Layer (`servers/`)**: Provision Security Groups, Application Load Balancer (ALB), and Auto Scaling Group (ASG) / compute workloads in the private subnet.
 4. **Validation & Deployment**: Execute `terraform init`, `terraform plan`, and `terraform apply`.
-5. **Connectivity Testing**: Validate Bastion jump-host SSH forwarding to the private backend VM.
-6. **Zero-Cost Teardown**: Execute `terraform destroy` to cleanly terminate all AWS resources and avoid cloud billing.
+5. **Session Manager Administration**: Configure AWS Systems Manager (SSM) for zero-port, credential-less administrative access to private instances.
+6. **Zero-Cost Teardown**: Execute `terraform destroy` across both layers to cleanly terminate all AWS resources and avoid cloud billing.
