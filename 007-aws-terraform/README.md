@@ -111,7 +111,6 @@ For this portfolio project, I intentionally maintain the state locally:
 ```text
 007-aws-terraform/
 ├── README.md               # Architecture documentation and lab walkthrough
-├── variables.tf            # Shared input variable declarations
 ├── network/                # Root 1: Network Foundation Layer
 │   ├── providers.tf        # AWS provider configuration for network
 │   ├── variables.tf        # Network-specific input variables
