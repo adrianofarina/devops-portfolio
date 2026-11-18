@@ -13,11 +13,13 @@ module "vpc" {
   vpc_cidr = "172.16.0.0/16"
 
   # 3-Tier Subnet CIDR Allocations
-  public_subnet_cidr  = "172.16.1.0/24"
-  private_subnet_cidr = "172.16.2.0/24"
-  secure_subnet_cidr  = "172.16.3.0/24"
+  public_subnet_cidr   = "172.16.1.0/24"
+  public_subnet_2_cidr = "172.16.10.0/24"
+  private_subnet_cidr  = "172.16.2.0/24"
+  secure_subnet_cidr   = "172.16.3.0/24"
 
-  # Availability Zone & Environment
-  availability_zone = data.aws_availability_zones.available.names[0]
-  environment       = var.environment
+  # Availability Zones (Multi-AZ for ALB) & Environment
+  availability_zone   = data.aws_availability_zones.available.names[0]
+  availability_zone_2 = data.aws_availability_zones.available.names[1]
+  environment         = var.environment
 }
