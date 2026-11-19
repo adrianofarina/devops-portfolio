@@ -1,0 +1,8 @@
+# This is only to provide an example of the variables required for deployment. It has been sanitized from personal info
+# AWS Region & Environment
+aws_region  = "us-east-1"
+environment = "dev"
+
+# AWS Budgets Cost Alert Configuration
+monthly_budget_limit = "5.0"
+budget_email         = "your-email@example.com"
