@@ -9,7 +9,8 @@ dnf install -y nginx
 
 # Configure custom application port if different from standard port 80
 if [ "${app_port}" != "80" ]; then
-  sed -i "s/listen 80 default_server;/listen ${app_port} default_server;/" /etc/nginx/nginx.conf || true
+  sed -i -E "s/listen\s+80;/listen ${app_port};/g" /etc/nginx/nginx.conf
+  sed -i -E "s/listen\s+\[::\]:80;/listen [::]:${app_port};/g" /etc/nginx/nginx.conf
 fi
 
 # Deploy parameterized landing page
