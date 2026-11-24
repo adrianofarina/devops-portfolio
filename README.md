@@ -29,3 +29,6 @@ Rather than relying purely on theoretical concepts, this repository documents pr
 
 7. **[007 - AWS Cloud Infrastructure as Code with Terraform](./007-aws-terraform/)**  
    Production-grade Infrastructure as Code (IaC) featuring reusable Terraform modules: Provisioning an AWS VPC (172.16.0.0/16), 3-tier subnets (Public, Private App, Secure Database), NAT Gateway, Security Groups, Application Load Balancer, private EC2/ASG workloads with AWS Systems Manager (SSM) zero-port access, state inspection, and zero-cost automated lifecycle management via 'terraform destroy'.
+
+8. **[008 - AWS EKS Auto Mode & Rancher: Multi-Cluster Platform Governance](./008-eks-rancher/)**  
+   Enterprise cloud platform engineering: Provisioning dual AWS EKS clusters via Terraform (Management plane with EKS Auto Mode and a target workload cluster), deploying Rancher Manager with self-signed TLS via cert-manager, integrating GitHub OAuth SSO with team RBAC, enforcing zero-secret IAM OIDC (IRSA), and engineering an event-driven AWS Lambda function in Python to automate cluster onboarding via the Rancher REST API.
