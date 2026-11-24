@@ -1,13 +1,11 @@
 variable "function_name" {
   description = "Name of the Lambda function that imports the workload cluster into Rancher"
   type        = string
-  default     = "rancher-cluster-importer"
 }
 
 variable "environment" {
   description = "Deployment environment name"
   type        = string
-  default     = "dev"
 }
 
 variable "workload_cluster_name" {

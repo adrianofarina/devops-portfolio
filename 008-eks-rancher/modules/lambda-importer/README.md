@@ -34,8 +34,8 @@ module "lambda_importer" {
 
 | Name | Description | Type | Default | Required |
 | :--- | :--- | :--- | :--- | :--- |
-| `function_name` | Name of the Lambda function that imports the workload cluster into Rancher | `string` | `"rancher-cluster-importer"` | no |
-| `environment` | Deployment environment name | `string` | `"dev"` | no |
+| `function_name` | Name of the Lambda function that imports the workload cluster into Rancher | `string` | n/a | yes |
+| `environment` | Deployment environment name | `string` | n/a | yes |
 | `workload_cluster_name` | Name of the target EKS Auto Mode workload cluster to import | `string` | n/a | yes |
 | `rancher_url_ssm_param` | SSM Parameter Store name holding the Rancher HTTPS URL | `string` | n/a | yes |
 | `rancher_password_ssm_param` | SSM Parameter Store name holding the Rancher admin password | `string` | n/a | yes |
