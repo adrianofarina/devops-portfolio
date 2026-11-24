@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and set your values locally.
+# Never commit terraform.tfvars to Git.
+
+aws_region            = "us-east-1"
+environment           = "dev"
+workload_cluster_name = "workload-eks"
