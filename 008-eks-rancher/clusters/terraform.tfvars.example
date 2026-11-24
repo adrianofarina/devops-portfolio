@@ -1,0 +1,11 @@
+# Copy this file to terraform.tfvars and set your sensitive values locally.
+# Never commit terraform.tfvars to Git.
+
+aws_region                 = "us-east-1"
+environment                = "dev"
+mgmt_cluster_name          = "mgmt-eks"
+workload_cluster_name      = "workload-eks"
+rancher_bootstrap_password = "ChangeMe-StrongPassword-123!"
+deploy_test_workload       = true
+budget_email               = "your-email@example.com"
+monthly_budget_limit       = "5.0"
