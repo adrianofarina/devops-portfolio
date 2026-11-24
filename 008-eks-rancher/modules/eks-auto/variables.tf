@@ -6,7 +6,6 @@ variable "cluster_name" {
 variable "kubernetes_version" {
   description = "Kubernetes control plane version"
   type        = string
-  default     = "1.36"
 }
 
 variable "subnet_ids" {
@@ -17,17 +16,14 @@ variable "subnet_ids" {
 variable "endpoint_public_access" {
   description = "Whether the EKS Kubernetes API server is reachable over the internet"
   type        = bool
-  default     = true
 }
 
 variable "admin_principal_arns" {
   description = "Optional extra IAM user or role ARNs granted cluster-admin permissions"
   type        = list(string)
-  default     = []
 }
 
 variable "environment" {
   description = "Deployment environment name"
   type        = string
-  default     = "dev"
 }

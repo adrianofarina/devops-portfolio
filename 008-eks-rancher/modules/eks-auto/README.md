@@ -20,10 +20,12 @@ It also configures an IAM OIDC Identity Provider for the cluster along with a sa
 module "eks" {
   source = "../modules/eks-auto"
 
-  cluster_name       = "workload-eks"
-  kubernetes_version = "1.36"
-  subnet_ids         = module.vpc.private_subnet_ids
-  environment        = "dev"
+  cluster_name           = "workload-eks"
+  kubernetes_version     = "1.36"
+  subnet_ids             = module.vpc.private_subnet_ids
+  endpoint_public_access = true
+  admin_principal_arns   = []
+  environment            = "dev"
 }
 ```
 
@@ -32,11 +34,11 @@ module "eks" {
 | Name | Description | Type | Default | Required |
 | :--- | :--- | :--- | :--- | :--- |
 | `cluster_name` | Name of the EKS Auto Mode cluster | `string` | n/a | yes |
-| `kubernetes_version` | Kubernetes control plane version | `string` | `"1.36"` | no |
+| `kubernetes_version` | Kubernetes control plane version | `string` | n/a | yes |
 | `subnet_ids` | List of private subnet IDs across at least 2 Availability Zones | `list(string)` | n/a | yes |
-| `endpoint_public_access` | Whether the EKS Kubernetes API server is reachable over the internet | `bool` | `true` | no |
-| `admin_principal_arns` | Optional extra IAM user or role ARNs granted cluster-admin permissions | `list(string)` | `[]` | no |
-| `environment` | Deployment environment name | `string` | `"dev"` | no |
+| `endpoint_public_access` | Whether the EKS Kubernetes API server is reachable over the internet | `bool` | n/a | yes |
+| `admin_principal_arns` | Optional extra IAM user or role ARNs granted cluster-admin permissions | `list(string)` | n/a | yes |
+| `environment` | Deployment environment name | `string` | n/a | yes |
 
 ## Outputs
 
