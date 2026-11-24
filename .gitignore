@@ -15,3 +15,10 @@ override.tf.json
 !*.tfvars.example
 .terraformrc
 terraform.rc
+
+# Python & Lambda build artifacts
+**/.build/
+__pycache__/
+*.py[cod]
+*.zip
+response.json
